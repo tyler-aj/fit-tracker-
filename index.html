@@ -102,6 +102,64 @@ body { background:linear-gradient(135deg,#e9edf5,#dfe6f1); min-height:100vh; dis
 </div>
 </div>
 
+<!-- NUTRITION SCREEN -->
+<div class="screen" id="nutritionScreen">
+<div class="container">
+<div class="app" style="min-height:auto;">
+  <div>
+    <div class="title">Nutrition Log</div>
+    <div class="subtitle" id="nutritionDate"></div>
+
+    <div class="form-group">
+      <label>🍳 Breakfast Calories</label>
+      <input type="number" id="breakfastCalories" placeholder="e.g. 400">
+    </div>
+
+    <div class="form-group">
+      <label>🍳 Breakfast Protein (g)</label>
+      <input type="number" id="breakfastProtein" placeholder="e.g. 30">
+    </div>
+
+    <div class="form-group">
+      <label>🍛 Lunch Calories</label>
+      <input type="number" id="lunchCalories" placeholder="e.g. 650">
+    </div>
+
+    <div class="form-group">
+      <label>🍛 Lunch Protein (g)</label>
+      <input type="number" id="lunchProtein" placeholder="e.g. 40">
+    </div>
+
+    <div class="form-group">
+      <label>🍽 Dinner Calories</label>
+      <input type="number" id="dinnerCalories" placeholder="e.g. 700">
+    </div>
+
+    <div class="form-group">
+      <label>🍽 Dinner Protein (g)</label>
+      <input type="number" id="dinnerProtein" placeholder="e.g. 45">
+    </div>
+
+    <div class="form-group">
+      <label>🍫 Snacks Calories</label>
+      <input type="number" id="snackCalories" placeholder="e.g. 200">
+    </div>
+
+    <div class="form-group">
+      <label>🍫 Snacks Protein (g)</label>
+      <input type="number" id="snackProtein" placeholder="e.g. 10">
+    </div>
+
+    <div class="success-msg" id="nutritionMsg">✅ Nutrition saved!</div>
+  </div>
+
+  <div style="margin-top:20px;">
+    <button class="button" onclick="saveNutrition()">Save Nutrition</button>
+    <button class="button secondary" onclick="showScreen('dashboardScreen')">← Back</button>
+  </div>
+</div>
+</div>
+</div>
 <!-- DASHBOARD SCREEN -->
 <div class="screen" id="dashboardScreen">
 <div class="container">
@@ -150,6 +208,7 @@ body { background:linear-gradient(135deg,#e9edf5,#dfe6f1); min-height:100vh; dis
   </div>
   <div>
     <button class="button" onclick="showScreen('checkinScreen')">+ Log Today</button>
+    <button class="button secondary" onclick="showScreen('nutritionScreen')">+ Log Nutrition</button>
     <button class="button secondary" onclick="showScreen('welcomeScreen')">← Home</button>
   </div>
 </div>
@@ -158,6 +217,30 @@ body { background:linear-gradient(135deg,#e9edf5,#dfe6f1); min-height:100vh; dis
 
 <script>
 // GOALS
+function saveNutrition() {
+  const today = getDateKey();
+
+  const nutrition = {
+    breakfastCalories: parseFloat(document.getElementById('breakfastCalories').value) || 0,
+    breakfastProtein: parseFloat(document.getElementById('breakfastProtein').value) || 0,
+    lunchCalories: parseFloat(document.getElementById('lunchCalories').value) || 0,
+    lunchProtein: parseFloat(document.getElementById('lunchProtein').value) || 0,
+    dinnerCalories: parseFloat(document.getElementById('dinnerCalories').value) || 0,
+    dinnerProtein: parseFloat(document.getElementById('dinnerProtein').value) || 0,
+    snackCalories: parseFloat(document.getElementById('snackCalories').value) || 0,
+    snackProtein: parseFloat(document.getElementById('snackProtein').value) || 0
+  };
+
+  localStorage.setItem('nutrition-' + today, JSON.stringify(nutrition));
+
+  const msg = document.getElementById('nutritionMsg');
+  msg.style.display = 'block';
+
+  setTimeout(() => {
+    msg.style.display = 'none';
+    showScreen('dashboardScreen');
+  }, 1200);
+}
 const GOALS = { steps: 10000, water: 3, protein: 150, sleep: 8 };
 let workoutDone = null;
 let weeklyChartInstance = null;
@@ -301,6 +384,7 @@ function copyExport() {
 
 // Init
 document.getElementById('checkinDate').textContent = getDateKey();
+document.getElementById('nutritionDate').textContent = getDateKey();
 </script>
 </body>
 </html>
