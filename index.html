@@ -68,6 +68,13 @@ body { background:linear-gradient(135deg,#e9edf5,#dfe6f1); min-height:100vh; dis
 <div class="app" style="min-height:auto;">
   <div>
     <div class="title">Daily Check-in</div>
+    <div class="form-group">
+      <label>📅 Select Day</label>
+      <select id="daySelect">
+        <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+        <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+      </select>
+    </div>
     <div class="subtitle" id="checkinDate"></div>
     <div class="form-group">
       <label>👟 Steps</label>
@@ -90,6 +97,18 @@ body { background:linear-gradient(135deg,#e9edf5,#dfe6f1); min-height:100vh; dis
       <div class="toggle-group">
         <button class="toggle-btn" id="workoutYes" onclick="setWorkout(true)">✅ Yes</button>
         <button class="toggle-btn" id="workoutNo" onclick="setWorkout(false)">❌ No</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>🏋️ Workout Types</label>
+      <div class="toggle-group" style="flex-wrap:wrap;">
+        <button class="toggle-btn" onclick="toggleWorkoutType('Chest', this)">Chest</button>
+        <button class="toggle-btn" onclick="toggleWorkoutType('Back', this)">Back</button>
+        <button class="toggle-btn" onclick="toggleWorkoutType('Shoulder', this)">Shoulder</button>
+        <button class="toggle-btn" onclick="toggleWorkoutType('Tricep', this)">Tricep</button>
+        <button class="toggle-btn" onclick="toggleWorkoutType('Bicep', this)">Bicep</button>
+        <button class="toggle-btn" onclick="toggleWorkoutType('Legs', this)">Legs</button>
+        <button class="toggle-btn" onclick="toggleWorkoutType('Core', this)">Core</button>
       </div>
     </div>
     <div class="success-msg" id="successMsg">✅ Check-in saved!</div>
@@ -188,6 +207,8 @@ body { background:linear-gradient(135deg,#e9edf5,#dfe6f1); min-height:100vh; dis
       </div>
       <div class="stats">
         <div class="stat">Workout<strong id="d-workout">—</strong></div>
+        <div class="stat">Day<strong id="d-day">—</strong></div>
+        <div class="stat">Workout Type<strong id="d-workoutTypes">—</strong></div>
       </div>
     </div>
 
@@ -243,6 +264,7 @@ function saveNutrition() {
 }
 const GOALS = { steps: 10000, water: 3, protein: 150, sleep: 8 };
 let workoutDone = null;
+let workoutTypes = [];
 let weeklyChartInstance = null;
 
 function showScreen(id) {
@@ -256,6 +278,16 @@ function setWorkout(val) {
   workoutDone = val;
   document.getElementById('workoutYes').classList.toggle('active', val === true);
   document.getElementById('workoutNo').classList.toggle('active', val === false);
+}
+
+function toggleWorkoutType(type, btn) {
+  if (workoutTypes.includes(type)) {
+    workoutTypes = workoutTypes.filter(t => t !== type);
+    btn.classList.remove('active');
+  } else {
+    workoutTypes.push(type);
+    btn.classList.add('active');
+  }
 }
 
 function getDateKey(offset = 0) {
@@ -274,6 +306,7 @@ function loadCheckinDefaults() {
     document.getElementById('protein').value = saved.protein || '';
     document.getElementById('sleep').value = saved.sleep || '';
     setWorkout(saved.workout);
+    workoutTypes = saved.workoutTypes || [];
   } else {
     setWorkout(null);
   }
@@ -282,12 +315,14 @@ function loadCheckinDefaults() {
 function saveCheckin() {
   const today = getDateKey();
   const data = {
+    day: document.getElementById('daySelect').value,
     date: today,
     steps: parseFloat(document.getElementById('steps').value) || 0,
     water: parseFloat(document.getElementById('water').value) || 0,
     protein: parseFloat(document.getElementById('protein').value) || 0,
     sleep: parseFloat(document.getElementById('sleep').value) || 0,
-    workout: workoutDone === true
+    workout: workoutDone === true,
+    workoutTypes: workoutTypes
   };
   localStorage.setItem('ft-' + today, JSON.stringify(data));
   const msg = document.getElementById('successMsg');
@@ -315,6 +350,8 @@ function loadDashboard() {
     document.getElementById('d-protein').textContent = data.protein + 'g';
     document.getElementById('d-sleep').textContent = data.sleep + 'h';
     document.getElementById('d-workout').textContent = data.workout ? '✅ Done' : '❌ Not yet';
+    document.getElementById('d-day').textContent = data.day || '—';
+    document.getElementById('d-workoutTypes').textContent = data.workoutTypes ? data.workoutTypes.join(', ') : '—';
     const pct = calcProgress(data);
     document.getElementById('progressPct').textContent = pct + '%';
     document.getElementById('progressRing').style.background =
